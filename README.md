@@ -4,7 +4,7 @@ A smart, browser-based OLX web scraper built with Python + Flask + Selenium, des
 🎉 Live working project link: https://olx-scraper-wuef.onrender.com/
 ✨ What Makes This Project Different
 
-Unlike traditional scrapers that collect everything from a results page, this scraper intelligently filters items — it only keeps listings whose title contains any of the search words (like “car” or “cover”).
+Unlike traditional scrapers that collect everything from a results page, this scraper intelligently filters items — it only keeps listings whose title contains any of the search words (like “car” or “cover”). We can enhance it by using LLM to select items from the title meaning.
 
 So if you search for car cover, it skips irrelevant listings and fetches only those that actually have “car” or “cover” in the title.
 
