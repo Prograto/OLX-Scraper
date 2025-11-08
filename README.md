@@ -1,3 +1,4 @@
+You can run only the python script (Ready_to_run_python_script.py) along withoutUI, It will generate a CSV file
 🚗 OLX Smart Scraper (Keyword-Aware Search)
 
 A smart, browser-based OLX web scraper built with Python + Flask + Selenium, designed to fetch only the most relevant ads based on keywords found in the title of each listing.
