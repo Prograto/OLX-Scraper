@@ -48,7 +48,8 @@ Web Automation	Selenium + ChromeDriver
 Driver Manager	webdriver-manager
 Frontend	HTML + CSS + JavaScript (AJAX)
 Data Output	JSON + downloadable CSV
-Parser	BeautifulSoup (HTML parsing) ```
+Parser	BeautifulSoup (HTML parsing)
+ ```
 🚀 Features
 
 ✅ Keyword-filtered scraping — Only titles matching any search word are included.
@@ -119,6 +120,7 @@ All weather cover for Alto	Perfect fit for small hatchbacks	₹450	View Ad
  ┣ app.py                → Flask + Selenium backend
  ┣ requirements.txt      → Python dependencies
  ┗ README.md             → You’re here ✨
+
 ```
 🧠 Developer Notes
 
