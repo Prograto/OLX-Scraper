@@ -1,0 +1,11 @@
+/* static/style.css */
+body { font-family: Inter, system-ui, -apple-system, sans-serif; background:#f5f7fb; padding:24px }
+.card { background:#fff; padding:18px; border-radius:12px; max-width:1000px; margin:0 auto; box-shadow:0 6px 18px rgba(0,0,0,0.06) }
+input[type="text"] { width:100%; padding:10px; border-radius:8px; border:1px solid #d6dbe8 }
+button { background:#0b69ff; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+button[disabled] { opacity:0.6; cursor:default }
+table { border-collapse:collapse; width:100%; margin-top:12px }
+th,td { border:1px solid #e6e9f2; padding:8px; text-align:left }
+th { background:#f1f5ff }
+.small { font-size:13px; color:#6b7280 }
+.controls { display:flex; gap:8px; margin-top:10px }

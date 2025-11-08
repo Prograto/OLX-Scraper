@@ -1,0 +1,33 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>OLX Scraper UI</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="card">
+    <h2>OLX Scraper</h2>
+    <p class="small">Default URL: <code id="defaultUrl">{{ default_url }}</code></p>
+
+    <label>OLX Search URL</label>
+    <input id="inputUrl" type="text" value="{{ default_url }}" />
+
+    <div class="controls">
+      <button id="btnStart">Start Scrape</button>
+      <button id="btnCancel" disabled>Cancel</button>
+    </div>
+
+    <div id="status" class="small">Selenium available on server: <strong>{{ 'Yes' if selenium else 'No' }}</strong></div>
+
+    <div id="jobInfo" style="margin-top:12px"></div>
+
+    <div id="results" style="margin-top:12px"></div>
+
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
