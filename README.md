@@ -42,13 +42,13 @@ A dynamic table
 CSV download option
 
 🧰 Tech Stack
-Component	Technology
+``` Component	Technology
 Backend	Flask (Python)
 Web Automation	Selenium + ChromeDriver
 Driver Manager	webdriver-manager
 Frontend	HTML + CSS + JavaScript (AJAX)
 Data Output	JSON + downloadable CSV
-Parser	BeautifulSoup (HTML parsing)
+Parser	BeautifulSoup (HTML parsing) ```
 🚀 Features
 
 ✅ Keyword-filtered scraping — Only titles matching any search word are included.
@@ -107,7 +107,7 @@ Car body cover for Swift	Brand new, waterproof car cover	₹500	View Ad
 All weather cover for Alto	Perfect fit for small hatchbacks	₹450	View Ad
 
 ❌ Items like “Bike seat cover” or “Motor cover for fan” are skipped automatically.
-
+```
 📂 Folder Structure
 📦 olx-smart-scraper
  ┣ 📂 templates
@@ -119,7 +119,7 @@ All weather cover for Alto	Perfect fit for small hatchbacks	₹450	View Ad
  ┣ app.py                → Flask + Selenium backend
  ┣ requirements.txt      → Python dependencies
  ┗ README.md             → You’re here ✨
-
+```
 🧠 Developer Notes
 
 You can easily tweak keyword logic inside:
