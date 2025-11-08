@@ -16,14 +16,22 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import re
 
+# Flask setup
 app = Flask(__name__, template_folder="templates", static_folder="static")
+
+# Job tracking
 jobs = {}
 jobs_lock = threading.Lock()
+
+# Default OLX search URL
 DEFAULT_URL = "https://www.olx.in/items/q-car-cover?isSearchCall=true"
 
 
+# Selenium Scraper
 def selenium_scrape(url, max_load_more=20, headless=False, wait_between_clicks=1.0, short_wait=1.0):
     results = []
+
+    # setup Chrome options
     chrome_opts = Options()
     if headless:
         try:
@@ -37,15 +45,18 @@ def selenium_scrape(url, max_load_more=20, headless=False, wait_between_clicks=1
     chrome_opts.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_opts.add_experimental_option("useAutomationExtension", False)
 
+    # start Chrome driver
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=chrome_opts)
     wait = WebDriverWait(driver, 12)
 
     try:
+        # open OLX search page
         driver.set_page_load_timeout(45)
         driver.get(url)
         time.sleep(short_wait)
 
+        # wait for item list to load
         try:
             wait.until(
                 EC.any_of(
@@ -56,8 +67,9 @@ def selenium_scrape(url, max_load_more=20, headless=False, wait_between_clicks=1
                 message="Timed out waiting for items"
             )
         except Exception:
-            pass
+            pass  # continue even if items not found yet
 
+        # click “Load more” multiple times
         for _ in range(max_load_more):
             try:
                 btn = driver.find_element(By.CSS_SELECTOR, '[data-aut-id="btnLoadMore"]')
@@ -69,45 +81,49 @@ def selenium_scrape(url, max_load_more=20, headless=False, wait_between_clicks=1
                     driver.execute_script("arguments[0].click();", btn)
                 time.sleep(wait_between_clicks)
             except (NoSuchElementException, TimeoutException, StaleElementReferenceException):
-                break
+                break  # stop when no more button found
 
+        # scroll page to trigger lazy load
         for _ in range(5):
             driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
             time.sleep(0.5)
 
+        # parse HTML with BeautifulSoup
         page_html = driver.page_source
         soup = BeautifulSoup(page_html, "html.parser")
 
+        # get product cards
         cards = soup.find_all("li", attrs={"data-aut-id": "itemBox3"})
         if not cards:
             cards = soup.find_all("li", attrs={"data-aut-id": "itemBox"})
         if not cards:
+            # fallback for different layouts
             anchors = soup.find_all("a", href=True)
             anchors = [a for a in anchors if "/items/" in a["href"] or re.search(r"/o[^/]+/|/p/", a["href"])]
             for a in anchors:
                 if a.parent:
                     cards.append(a.parent)
 
+        # extract item info
         for c in cards:
             try:
                 a_tag = c.find("a", href=True)
                 link = a_tag["href"].strip() if a_tag else ""
-
                 price_tag = c.select_one('span[data-aut-id="itemPrice"]') or c.find("span", class_="_2Ks63")
                 price = price_tag.get_text(" ", strip=True) if price_tag else ""
-
                 details_tag = c.select_one('span[data-aut-id="itemDetails"]') or c.find("span", class_="YBbhy")
                 details = details_tag.get_text(" ", strip=True) if details_tag else ""
-
                 title_tag = c.select_one('span[data-aut-is="itemTitle"]') or c.find("span", class_="_2poNJ")
                 title = title_tag.get_text(" ", strip=True) if title_tag else (a_tag.get_text(" ", strip=True) if a_tag else "")
 
+                # add item if valid
                 if title or price or link:
                     results.append({"title": title, "description": details, "price": price, "link": link})
             except Exception:
-                continue
+                continue  # skip bad entries
 
     finally:
+        # close browser
         try:
             driver.quit()
         except Exception:
@@ -116,11 +132,15 @@ def selenium_scrape(url, max_load_more=20, headless=False, wait_between_clicks=1
     return results
 
 
+# Background Worker
 def worker(jobid, url, headless=False):
     with jobs_lock:
         jobs[jobid]["status"] = "running"
     try:
+        # run scraper
         results = selenium_scrape(url, headless=headless)
+
+        # save to CSV
         os.makedirs("scraped_data", exist_ok=True)
         csv_path = os.path.join("scraped_data", f"{jobid}.csv")
         with open(csv_path, "w", newline="", encoding="utf-8") as f:
@@ -128,11 +148,14 @@ def worker(jobid, url, headless=False):
             writer.writerow(["Title", "Description", "Price", "Link"])
             for r in results:
                 writer.writerow([r.get("title", ""), r.get("description", ""), r.get("price", ""), r.get("link", "")])
+
+        # update job status
         with jobs_lock:
             jobs[jobid]["status"] = "finished"
             jobs[jobid]["results"] = results
             jobs[jobid]["error"] = None
             jobs[jobid]["csv_path"] = csv_path
+
     except Exception as e:
         tb = traceback.format_exc()
         with jobs_lock:
@@ -142,6 +165,7 @@ def worker(jobid, url, headless=False):
             jobs[jobid]["csv_path"] = None
 
 
+# Flask Routes
 @app.route("/")
 def index():
     return render_template("index.html", default_url=DEFAULT_URL)
@@ -153,15 +177,21 @@ def start_scrape():
     url = data.get("url") or DEFAULT_URL
     headless = data.get("headless", False)
     jobid = str(uuid.uuid4())
+
+    # create job entry
     with jobs_lock:
         jobs[jobid] = {"status": "queued", "results": [], "error": None, "csv_path": None, "created_at": time.time()}
+
+    # start background thread
     t = threading.Thread(target=worker, args=(jobid, url, headless), daemon=True)
     t.start()
+
     return jsonify({"message": "Scrape started", "jobid": jobid, "status": "queued"}), 202
 
 
 @app.route("/status/<jobid>")
 def status(jobid):
+    # return job progress
     with jobs_lock:
         job = jobs.get(jobid)
         if not job:
@@ -176,6 +206,7 @@ def status(jobid):
 
 @app.route("/results/<jobid>")
 def results(jobid):
+    # return job results
     with jobs_lock:
         job = jobs.get(jobid)
         if not job:
@@ -190,6 +221,7 @@ def results(jobid):
 
 @app.route("/download/<jobid>")
 def download(jobid):
+    # send CSV file
     with jobs_lock:
         job = jobs.get(jobid)
         if not job:
@@ -200,6 +232,7 @@ def download(jobid):
     return send_file(path, as_attachment=True, download_name=os.path.basename(path))
 
 
+# Run App
 if __name__ == "__main__":
     os.makedirs("scraped_data", exist_ok=True)
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)
