@@ -1,32 +1,43 @@
 🚗 OLX Smart Scraper (Keyword-Aware Search)
 
 A smart, browser-based OLX web scraper built with Python + Flask + Selenium, designed to fetch only the most relevant ads based on keywords found in the title of each listing.
-📽🎥 Live Video Demo: https://drive.google.com/file/d/1r7inY0mVFNabESB3eOx_iEavVrYR5VT2/view?usp=drivesdk
-🎉 Live working project link: https://olx-scraper-wuef.onrender.com/
+
+🎥 Live Video Demo: [Watch on Google Drive](https://drive.google.com/file/d/1r7inY0mVFNabESB3eOx_iEavVrYR5VT2/view?usp=drivesdk)
+
+🌐 Live Project: https://olx-scraper-wuef.onrender.com/
+
 ✨ What Makes This Project Different
 
-Unlike traditional scrapers that collect everything from a results page, this scraper intelligently filters items — it only keeps listings whose title contains any of the search words (like “car” or “cover”). We can enhance it by using LLM to select items from the title meaning.
+Unlike traditional scrapers that collect everything on a results page, this scraper thinks — it filters intelligently.
 
-So if you search for car cover, it skips irrelevant listings and fetches only those that actually have “car” or “cover” in the title.
+🧩 It only keeps listings whose title contains any of the search words (like “car” or “cover”).
+
+💡 It can be further enhanced with LLMs to understand the meaning of titles, not just literal matches.
+
+Example: Searching for “car cover” skips irrelevant results like “Bike seat cover” or “Fan motor cover”, fetching only relevant items like “Car cover for Swift”.
 
 🧠 How It Works
 
-You enter or use a default OLX search URL — e.g.
+Enter or use the default OLX search URL
 
 https://www.olx.in/items/q-car-cover?isSearchCall=true
 
 
-The scraper extracts the keywords (→ ["car", "cover"]) from the URL.
+The scraper extracts keywords → ["car", "cover"]
 
-Using Selenium, it loads the OLX results page and automatically:
+Selenium loads the page and:
 
-Scrolls and clicks “Load More” until all results are visible.
+Scrolls and clicks “Load More” to reveal all items
 
-Extracts each item’s Title, Description, Price, and Link.
+Extracts Title, Description, Price, and Link
 
-Filters only those items where any keyword appears in the title.
+Keeps only ads whose title contains any keyword
 
-Displays the results beautifully in a web UI (with a table and CSV download option).
+Displays results in an interactive web UI with:
+
+A dynamic table
+
+CSV download option
 
 🧰 Tech Stack
 Component	Technology
@@ -35,25 +46,27 @@ Web Automation	Selenium + ChromeDriver
 Driver Manager	webdriver-manager
 Frontend	HTML + CSS + JavaScript (AJAX)
 Data Output	JSON + downloadable CSV
-Parser	BeautifulSoup (for final HTML parsing)
+Parser	BeautifulSoup (HTML parsing)
 🚀 Features
 
-✅ Keyword-filtered scraping — Only includes listings with search words in the title.
-✅ Smart automation — Automatically scrolls and clicks "Load More".
-✅ Live progress tracking — UI shows scrape progress in real-time.
-✅ Background processing — Scraping runs asynchronously in threads.
-✅ Instant download — Export all filtered data to CSV with one click.
-✅ Headless mode — Runs Chrome invisibly for faster, quieter scraping.
+✅ Keyword-filtered scraping — Only titles matching any search word are included.
+✅ Smart automation — Automatically clicks “Load More” and scrolls.
+✅ Live progress tracking — UI updates as scraping runs.
+✅ Background processing — Runs asynchronously via threads.
+✅ Instant CSV download — One click to export filtered data.
+✅ Headless mode — Chrome runs silently for faster, cleaner scraping.
 
 🪜 Installation & Setup
 1️⃣ Clone this repository
 git clone https://github.com/<your-username>/olx-smart-scraper.git
 cd olx-smart-scraper
 
-2️⃣ Create a virtual environment (recommended)
+2️⃣ Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate  # For Linux/Mac
-venv\Scripts\activate     # For Windows
+# Linux/Mac
+source venv/bin/activate
+# Windows
+venv\Scripts\activate
 
 3️⃣ Install dependencies
 pip install -r requirements.txt
@@ -66,14 +79,13 @@ pip install flask selenium webdriver-manager beautifulsoup4 requests
 4️⃣ Run the app
 python app.py
 
-5️⃣ Open in browser
+5️⃣ Open your browser
 http://127.0.0.1:5000
 
 
-You’ll see a search box and a “Scrape” button.
-Enter an OLX search URL or use the default one.
+Use the default OLX URL or paste your own — then click “Scrape”.
 
-📊 Example
+📊 Example Output
 
 Input URL:
 
@@ -85,55 +97,67 @@ Extracted keywords:
 ["car", "cover"]
 
 
-Result:
+Filtered Results:
 
 Title	Description	Price	Link
-Car body cover for Swift	Brand new, waterproof car cover...	₹500	View Ad
+Car body cover for Swift	Brand new, waterproof car cover	₹500	View Ad
 
-All weather cover for Alto	Perfect fit for small hatchbacks...	₹450	View Ad
+All weather cover for Alto	Perfect fit for small hatchbacks	₹450	View Ad
 
-⛔ Listings like “Bike seat cover” or “Motor cover for fan” are ignored because their titles don’t contain the keyword “car”.
+❌ Items like “Bike seat cover” or “Motor cover for fan” are skipped automatically.
 
-🧩 Folder Structure
-📂 olx-smart-scraper
+📂 Folder Structure
+📦 olx-smart-scraper
  ┣ 📂 templates
  ┃ ┗ index.html          → Web UI
  ┣ 📂 static
  ┃ ┣ style.css           → Styling
- ┃ ┗ script.js           → Client-side JS logic
+ ┃ ┗ script.js           → Client-side logic
  ┣ 📂 scraped_data        → Auto-generated CSV files
  ┣ app.py                → Flask + Selenium backend
  ┣ requirements.txt      → Python dependencies
- ┗ README.md             → You’re here :)
+ ┗ README.md             → You’re here ✨
 
 🧠 Developer Notes
 
-You can modify the keyword logic easily in:
+You can easily tweak keyword logic inside:
 
 def filter_title_keywords(items, keywords):
     if any(k in title for k in keywords):
         filtered.append(it)
 
 
-Currently, it matches any keyword (logical OR).
-If you want to require all words (logical AND), replace any with all.
+Default behavior: OR condition (any word match)
 
-The scraper uses a headless Chrome instance by default; you can toggle this in code or via UI.
+To enforce AND condition, replace any with all
 
-🧩 Future Enhancements
+Currently filters only by title, ignoring descriptions
 
-🚧 Add support for:
+Runs Chrome headless by default (can be changed in code)
 
-Pagination across multiple OLX pages
+🚧 Future Enhancements
 
-Filtering by price range or location
+💡 Planned improvements:
 
-Multi-keyword AND/OR toggles in the UI
+Multi-page support (pagination)
 
-Built-in keyword highlighting in results
+Filters by price, city, or date posted
+
+Keyword highlighting in the results table
+
+LLM-based smart matching for related terms (e.g., “automobile cover” → “car cover”)
 
 ❤️ Author
 
-Chandra Sekhar Arasavalli
+👨‍💻 Chandra Sekhar Arasavalli
+B.Tech CSE (2022–2026) | AI, ML, IoT & Full Stack Developer
+
 📧 Email
- | 🌐 GitHub: Prograto
+
+🌐 GitHub – Prograto
+
+💼 LinkedIn – Chandra Sekhar Arasavalli
+
+⭐ If you like this project
+
+Give it a star on GitHub 🌟 — it helps others find it!
